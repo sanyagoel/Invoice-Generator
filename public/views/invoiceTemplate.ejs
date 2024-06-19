@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <link rel="stylesheet" href="../clientstyle.css"/>
+</head>
+<style>
+    body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+.invoice-header {
+    background-color: #7c6efb; /* Red color */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    min-height: 150px;
+}
+
+.invoice-header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.contact-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+    max-width: 250px;
+    line-height: 1.5;
+}
+
+.contact-info p.info {
+    margin: 5px 0;
+    font-size: 12px; /* Reduced font size for contact info */
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #f2f2f2;
+    margin-bottom: 10px;
+}
+
+.invoice-details {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    margin: 0 10px;
+    border: 1px solid #ddd;
+}
+
+.invoice-details p {
+    margin: 5px 0;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.invoice-table th,
+.invoice-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.invoice-table th {
+    background-color: #f2f2f2;
+}
+
+.invoice-total {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: right;
+    background-color: #f2f2f2;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+</style>
+<body>
+
+<div class="invoice-header">
+    <h1>INVOICE</h1>
+    <div class="contact-info">
+        <p class="info"><%= user.yourPhone %></p>
+        <p class="info"><%= user.yourEmail %></p>
+        <p class="info"><%= user.yourWebsite %></p>
+        <p class="info"><%= user.yourAddress %></p>
+        <p class="info"><%= user.yourCity %>, <%= user.yourState %>, <%= user.yourCountry %></p>
+        <p class="info"><%= user.yourZipcode %></p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="invoice-details">
+        <p><strong>Billed To</strong></p>
+        <p><%= user.name %></p>
+        <p><%= user.address %></p>
+        <p><%= user.city %>, <%= user.state %>, <%= user.country %></p>
+        <p><%= user.zipcode %></p>
+    </div>
+    <div class="invoice-details">
+        <p><strong>Invoice Number</strong></p>
+        <p><%= user.invoiceNumber %></p>
+        <p><strong>Date Of Issue</strong></p>
+        <p><%= new Date(user.dateOfIssue).toLocaleDateString() %></p>
+    </div>
+</div>
+
+<table class="invoice-table">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Unit Cost</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% user.stuff.forEach(item => { %>
+        <tr>
+            <td><%= item.description %></td>
+            <td>$<%= item.unitPrice %></td>
+            <td><%= item.quantity %></td>
+            <td>$<%= item.totalunitPrice %></td>
+        </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<div class="container">
+    <div class="invoice-details">
+        <p><strong>Subtotal</strong></p>
+        <p>$<%= user.subtotal %></p>
+    </div>
+    <div class="invoice-details">
+        <p><strong>Tax</strong></p>
+        <p>$<%= user.tax %></p>
+    </div>
+</div>
+
+<div class="container invoice-total">
+    <p><strong>Invoice Total:</strong> $<%= user.totalPrice %></p>
+</div>
+
+</body>
+</html>

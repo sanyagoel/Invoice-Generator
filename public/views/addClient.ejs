@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Invoice</title>
+    <link rel="stylesheet" href="../clientstyle1.css"/>
+</head>
+<body>
+
+<div class="form-container">
+    <h1>Create Invoice</h1>
+    <form action="/addClient" method="POST" id="invoice-form">
+
+        <div class="section">
+            <h2>Client Information</h2>
+            <label for="client-name">Client Name:</label>
+            <input type="text" id="client-name" name="name" required>
+
+            <label for="email">Email: </label>
+            <input type="text" id="email" name="email" required>
+
+            <label for="phone">Phone No : </label>
+            <input type="text" id="phone" name="phone" required>
+
+            <label for="business">Business : </label>
+            <input type="text" id="business" name="business" required>
+
+            <label for="client-address">Client Address:</label>
+            <input type="text" id="client-address" name="address" required>
+
+            <label for="client-city">City:</label>
+            <input type="text" id="client-city" name="city" required>
+
+            <label for="client-state">State:</label>
+            <input type="text" id="client-state" name="state" required>
+
+            <label for="client-country">Country:</label>
+            <input type="text" id="client-country" name="country" required>
+
+            <label for="client-zip">ZIP Code:</label>
+            <input type="text" id="client-zip" name="zipcode" required>
+        </div>
+
+        <div class="section">
+            
+            <label for="date-of-issue">Date Of Issue:</label>
+            <input type="date" id="date-of-issue" name="dateOfIssue" required>
+        </div>
+        <span>
+            <button type="button" onclick="onFunc()">Add </button>
+            <div class="section" id="itemss" name="items">
+                <h2>Itemized Billing</h2>
+            </div>
+        </span>
+        
+        <div class="section">
+            <h2>Summary</h2>
+            <input type="hidden" id="subtotal" name="subtotal" required>
+
+            <label for="tax">Tax:</label>
+            <input type="number" id="tax" name="tax" required>
+
+            <input type="hidden" id="total" name="totalPrice" required>
+        </div>
+
+        <div class="section">
+            <button type="submit">Create Invoice</button>
+        </div>
+    </form>
+</div>
+
+</body>
+<script>
+    const contentadd = document.getElementById('itemss');
+    function onFunc(){
+        contentadd.innerHTML += `<div class="item">
+                <fieldset>
+                <label for="description-2">Description:</label>
+                <input type="text" id="description" class="description" name="description" required>
+
+                <label for="unit-cost-2">Unit Cost:</label>
+                <input type="number" id="unit-cost" class="unit-cost" name="unitCost" required>
+
+                <label for="quantity-2">Quantity:</label>
+                <input type="number" id="quantity" class="quantity" name="quantity" required>
+
+                
+                </fieldset>
+            </div>`;
+    }
+
+    const forms = document.getElementById('invoice-form');
+    forms.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const arr = [];
+        const fieldsets = document.querySelectorAll('.item fieldset');
+        let subtotal = 0;
+        fieldsets.forEach((fieldset) => {
+            const description = fieldset.querySelector('.description').value;
+            const unitCost = fieldset.querySelector('.unit-cost').value;
+            const quantity = fieldset.querySelector('.quantity').value;
+            const amount = unitCost * quantity;
+            subtotal += amount;
+            arr.push({
+                description: description,
+                unitPrice: unitCost,
+                quantity: quantity,
+                totalunitPrice: amount  
+            });
+        });
+        document.getElementById('total').value = subtotal + Number(document.getElementById('tax').value);
+        document.getElementById('subtotal').value = subtotal;
+
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.value = JSON.stringify(arr);
+        hiddenInput.name = 'stuff';
+        forms.appendChild(hiddenInput);
+
+        forms.submit();
+    });
+</script>
+</html>

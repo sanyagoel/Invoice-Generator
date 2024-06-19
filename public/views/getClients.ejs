@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLIENTS</title>
+</head>
+<body>
+    <% clients.forEach((client)=>{ %>
+        <div> <p><%= client.name %></p> </div>
+        <div> <p><%= client.business %></p> </div>
+        <div> <p><%= client.invoiceNumber %></p> </div>
+        <div> <p><%= client.totalPrice %></p> </div>
+        <div> <p><%= client.invoiceNumber %></p> </div>
+        <form action="/sendInvoice" method="POST"><input type="hidden" name="clientID" value="<%= client._id %>"><button type="submit" >Send Invoice</button></form>
+    <% }) %>
+</body>
+</html>
