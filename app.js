@@ -1,10 +1,11 @@
 const express = require('express');
+require('dotenv').config();
+
 const app = new express();
 const bodyparser = require('body-parser');
 const {MONGO_URI} = require('./utils/db');
 const { default: mongoose } = require('mongoose');
 const { MongoClient } = require("mongodb");
-require('dotenv').config();
 const PORT = 3000;
 const userRouter = require('./routes/userRoutes');
 const rootDir = require('./utils/path');
