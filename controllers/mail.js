@@ -3,7 +3,7 @@ require("dotenv").config();
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 
-
+//https://dev.to/chandrapantachhetri/sending-emails-securely-using-node-js-nodemailer-smtp-gmail-and-oauth2-g3a
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -140,5 +140,36 @@ async function sendInvoiceMail(useremail,attachment,data){
     }
 }
 
-module.exports = {sendMail,sendInvoiceMail};
+async function sendPasswordMail(useremail,token){
+    try{
+        const accessToken = oauth2client.getAccessToken();
+        const transport = nodemailer.createTransport({
+            service : 'gmail',
+            auth : {
+                type : 'OAuth2',
+                user : 'invoicegen1989@gmail.com',
+                clientId : CLIENT_ID,
+                clientSecret : CLIENT_SECRET,
+                refreshToken : REFRESH_TOKEN,
+                accessToken : accessToken
+
+            }
+        })
+        const mailOptions = {
+            from : 'INVOICEGEN <invoicegen1989@gmail.com>',
+            to : useremail,
+            subject : 'password reset',
+            text : 'Here is the link to reset password ',
+            html : `<h1>Welcome to Invoice Generator!</h1>
+                        <a href="http://localhost:3000/resetPassword/${token}"> Click this link to reset password</a>`
+        };
+        const result = await transport.sendMail(mailOptions);
+        return result;
+
+    }catch(err){
+        console.log(err);
+    }
+}
+
+module.exports = {sendMail,sendInvoiceMail,sendPasswordMail};
 

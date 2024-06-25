@@ -1,26 +1,67 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
+const {validationResult} = require('express-validator');
+// var redis = require('redis');
+// var JWTR =  require('jwt-redis').default;
+// //ES6 import JWTR from 'jwt-redis';
+// var redisClient = redis.createClient();
+// const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const sendMail = require('./mail');
+const {sendMail,sendInvoiceMail,sendPasswordMail} = require('./mail');
+
+
+// const initialise = async ()=>{
+//   await redisClient.connect();
+//   return new JWTR(redisClient);
+// }
+
+// let jwtr;
+
+// initialise().then((jwtrclient)=>{
+//   jwtr = jwtrclient;
+// }).catch((err)=>{
+//   console.log(err);
+// });
+
 
 const create = (req,res,next)=>{
-    res.render('signup.ejs');
+    res.render('signup.ejs',{
+      alrex : req.flash('existsalr'),
+      errors : [],
+      oldEmail : '',
+      oldPassword : ''
+    });
 }
 
-const log = (req,res,next)=>{
-    res.render('login.ejs');
+const log = (req, res, next) => {
+ 
+  res.render('login.ejs', {
+    timeup : req.flash('timeUP')[0]||null,
+    errorEmail: req.flash('error')[0]||null,
+    errorPass: req.flash('wrongpass')[0]||null,
+    linkExpire : req.flash('expired')[0]||null, 
+    oldEmail : '',
+    oldPassword : '',
+    errors : []
+  });
 }
 
 const createAccount = async (req, res, next) => {
   try {
     const { name, email, password ,phone} = req.body;
-    const user = await User.findOne({ email: email });
-    if (user) {
-      return res
-        .status(400)
-        .json({ message: "Sorry, this email already exists" });
-    } else {
+    const result = validationResult(req);
+    const errors = result.array();
+    console.log(errors);
+    if(!result.isEmpty()){
+      return res.status(422).render('signup.ejs',{
+      alrex : errors[0].msg,
+      errors : errors,
+      oldEmail : email,
+      oldPassword : password
+    })
+    }
+    
       const pass = await bcrypt.hash(password, 10);
       const newUser = new User({
         name: name,
@@ -29,16 +70,17 @@ const createAccount = async (req, res, next) => {
         phone : phone
       });
       await newUser.save();
-      const token = jwt.sign({ email: email , id : newUser._id}, process.env.SECRET_KEY,{expiresIn : '10m'});
-      console.log(token);
+      req.session.user = newUser;
+      //const token = await jwtr.sign({ email: email , id : newUser._id}, process.env.SECRET_KEY,{expiresIn : '10m'});
+      //console.log(token);
       sendMail(newUser.email).then((result)=>{
         console.log(result);
-        res.cookie('token',token,{httpOnly : true});
+        //res.cookie('token',token,{httpOnly : true});
         return res.redirect('/home')}).catch((err)=>{
             console.log(err);
         });
       //res.setHeader('Authorization', `Bearer ${token}`);
-    }
+    
   } catch (err) {
     console.log(err);
   }
@@ -47,22 +89,35 @@ const createAccount = async (req, res, next) => {
 const logAccount = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const result2 = validationResult(req);
+    const errors = result2.array();
+    console.log(errors);
+    if(!result2.isEmpty()){
+      return res.status(422).render('login.ejs',{
+      timeup : req.flash('timeUP')[0]||null,  
+      errorEmail : errors[0].msg,
+      errorPass: req.flash('wrongpass')[0]||null,
+      linkExpire : req.flash('expired')[0]||null,
+      oldEmail : email,
+      oldPassword : password,
+      errors : errors
+    })
+    }
     const user = await User.findOne({ email: email });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ message: "No account exists with this email id" });
-    } else {
+
       const result = await bcrypt.compare(password, user.password);
       if (!result) {
-        return res.status(400).json({ message: "Wrong Password" });
+        req.flash('wrongpass','Wrong Password, Please try again.');
+        return res.redirect('/log');
       } else {
-        const token = jwt.sign({ email: email , id : user._id}, process.env.SECRET_KEY,{expiresIn : '10m'});
-        res.cookie('token',token,{httpOnly : true});
-
-        return res.redirect('/home');
+        //const token = await jwtr.sign({ email: email , id : user._id}, process.env.SECRET_KEY,{expiresIn : '10m'});
+        //res.cookie('token',token,{httpOnly : true});
+        req.session.user = user;
+        return req.session.save(()=>{
+          res.redirect('/home');
+        })
     }
-    }
+    
   } catch (err) {
     console.log(err);
   }
@@ -70,17 +125,21 @@ const logAccount = async (req, res, next) => {
 
 const getHome = async(req,res,next)=>{
     //console.log(req.user);
-    const id = req.user.id;
+    const id = req.session.user._id;
     const user =await User.findOne({_id : id});
     res.render('home.ejs', {name : user.name});
 }
 
 const getUserDetails = async(req,res,next)=>{
-    res.render('addUserDetails.ejs');
+  const userID = req.session.user._id;
+
+  const user = await User.findOne({_id : userID});
+  console.log(user);
+    res.render('addUserDetails.ejs', {user :  user });
 }
 
 const postUserDetails = async(req,res,next)=>{
-    const userID = req.user.id;
+    const userID = req.session.user._id;
     const {website,address,city,state,country,zipcode} = req.body;
 
     const updateUser = await User.findByIdAndUpdate(userID,{
@@ -95,4 +154,71 @@ const postUserDetails = async(req,res,next)=>{
     console.log(updateUser);
 }
 
-module.exports = { createAccount,logAccount,getHome,create,log , getUserDetails,postUserDetails};
+const getresetPassword = async(req,res,next)=>{
+  const token = req.params.token;
+  const user = await User.findOne({mailToken : token ,mailTokenExpire:  {$gt: Date.now()}});
+  if(!user){
+    req.flash('expired','Your link has expired, please send another request.')
+    return res.redirect('/log');
+  }
+  console.log(user);
+  return res.render('password-reset.ejs',{
+    notmatch : req.flash('unmatched'),
+    token : token,
+    user_id : user._id
+  });
+}
+
+const resetPassword = async(req,res,next)=>{
+  const {token,userID,password,match_password} = req.body;
+  const user = await User.findOne({mailToken : token ,mailTokenExpire:  {$gt: Date.now()},_id : userID});
+  if(!user){
+    req.flash('expired','Your link has expired, please send another request');
+    return res.redirect('/log');
+  }
+  if(password!==match_password){
+    req.flash('unmatched','Passwords do not match.')
+    return res.redirect(`/resetPassword/${token}`);
+  }
+  const hashedPassword = await bcrypt.hash(password,10);
+  user.password = hashedPassword;
+  user.mailToken = undefined;
+  user.mailTokenExpire = undefined;
+  await user.save();
+  return res.redirect('/log');
+}
+
+const reset = async(req,res,next)=>{
+  res.render('reset-email.ejs',{
+    emailmis : req.flash('emailmiss')
+  });
+}
+
+const postreset=async(req,res,next)=>{
+    
+    const {mail} = req.body;
+    const user = await User.findOne({email : mail});
+    crypto.randomBytes(32,async (err,buffer)=>{
+    if(!user){
+      req.flash('emailmiss','This email does not belong to any account.');
+      return res.redirect('/reset');
+    }
+    const token = buffer.toString('hex');
+    user.mailToken = token;
+    user.mailTokenExpire = Date.now() + 600000;
+    await user.save();
+    sendPasswordMail(user.email,token);
+    res.redirect('/log');
+    })
+}
+
+const logOut = async(req,res,next)=>{
+  req.session.destroy(()=>{
+    console.log('User logged out');
+    res.redirect('/');
+  });
+}
+
+
+module.exports = { createAccount,logAccount,getHome,create,log , getUserDetails,postUserDetails,logOut,resetPassword,getresetPassword,reset,postreset};
+

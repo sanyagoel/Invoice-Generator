@@ -1,41 +1,81 @@
 const express = require('express');
-require('dotenv').config();
-
-const app = new express();
-const bodyparser = require('body-parser');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf'); 
 const {MONGO_URI} = require('./utils/db');
+
+const app = express();
+const bodyparser = require('body-parser');
 const { default: mongoose } = require('mongoose');
-const { MongoClient } = require("mongodb");
 const PORT = 3000;
 const userRouter = require('./routes/userRoutes');
 const rootDir = require('./utils/path');
 const path = require('path');
+const flash = require('connect-flash');
 
-const cookieParser = require('cookie-parser');
+var MongoDBStore = require('connect-mongodb-session')(session);
+var store = new MongoDBStore({
+  uri: MONGO_URI,
+  collection: 'mySessions'
+});
+const csrfprotection = csrf();
 
-app.use(cookieParser());
+store.on('error', function(error) {
+  console.log(error);
+});
+
+app.use(cookieParser(process.env.cookieParserSecret));
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(rootDir, 'public', 'views'));
+
+app.use(express.static(path.join(rootDir, 'public')));
+
+app.use(bodyparser.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: process.env.SESSION_SECRETKEY,
+  cookie: { maxAge: 600000 },
+  store: store,
+  saveUninitialized: false,
+  resave: false
+}));
+
+app.use(flash());
+
+app.use(csrfprotection);
+// const { csrfSynchronisedProtection } = csrfSync({
+//   getTokenFromRequest: (req) => req.body._csrf, // Ensure this matches the input field name in your form
+//   value: (req) => req.session.csrfSecret,
+//   secretLength: 32,
+//   secretNamespace: 'formCsrfSecret'
+// });
+
+// app.use(csrfSynchronisedProtection);
+
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 
-app.set('view engine','ejs');
-app.set('views',path.join(rootDir,'public','views'));
+app.use('/', userRouter);
 
-app.use(express.static(path.join(rootDir,'public')));
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    req.flash('timeUP','Time is up, you have to login to continue :)')
+    res.redirect('/log'); // Redirect to login or another appropriate page
+  } else {
+    next();
+  }
+});
 
-app.use(bodyparser.urlencoded({extended : true}));
+mongoose.connect(MONGO_URI).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((err) => {
+  console.error('Failed to connect to MongoDB', err);
+});
 
-app.use('/',userRouter);
-
-
-
-mongoose.connect(MONGO_URI, {
-
-  }).then(() => {
-    console.log('Connected to MongoDB');
-  }).catch((err) => {
-    console.error('Failed to connect to MongoDB', err);
-  });
-
-app.listen(PORT,()=>{
-    console.log(`Server running at port: ${PORT}`);
-})
-
+app.listen(PORT, () => {
+  console.log(`Server running at port: ${PORT}`);
+});

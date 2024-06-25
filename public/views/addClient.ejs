@@ -5,68 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Invoice</title>
     <link rel="stylesheet" href="../clientstyle1.css"/>
+    <link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
-
+    <%- include('../includes/nav.ejs') %>
 <div class="form-container">
     <h1>Create Invoice</h1>
-    <form action="/addClient" method="POST" id="invoice-form">
-
+    <form action="/addClient" method="POST" id="invoice-form" class="redL">
         <div class="section">
             <h2>Client Information</h2>
+            <div>
+                <p class="errormessage"><%= errorMessage %></p>
+            </div>
             <label for="client-name">Client Name:</label>
-            <input type="text" id="client-name" name="name" required>
+            <input type="text" id="client-name" name="name" required value="<%= oldOutput.oldName %>">
 
             <label for="email">Email: </label>
-            <input type="text" id="email" name="email" required>
-
-            <label for="phone">Phone No : </label>
-            <input type="text" id="phone" name="phone" required>
+            <input type="text" id="email" name="email" required value="<%= oldOutput.oldEmail %>" class="<%= errors.find((err)=>err.path === 'email') ? 'redBox' : '' %>">
+            <label for="phone">Phone No : </label>                                 
+            <input type="text" id="phone" name="phone" required value="<%= oldOutput.oldPhone %>" class="<%= errors.find((err)=>err.path === 'phone') ? 'redBox' : '' %>">
 
             <label for="business">Business : </label>
-            <input type="text" id="business" name="business" required>
+            <input type="text" id="business" name="business" required value="<%= oldOutput.oldBusiness %>">
 
             <label for="client-address">Client Address:</label>
-            <input type="text" id="client-address" name="address" required>
+            <input type="text" id="client-address" name="address" required value="<%= oldOutput.oldAddress %>" class="<%= errors.find((err)=>err.path === 'address') ? 'redBox' : '' %>">
 
             <label for="client-city">City:</label>
-            <input type="text" id="client-city" name="city" required>
+            <input type="text" id="client-city" name="city" required value="<%= oldOutput.oldCity %>">
 
             <label for="client-state">State:</label>
-            <input type="text" id="client-state" name="state" required>
+            <input type="text" id="client-state" name="state" required value="<%= oldOutput.oldState %>">
 
             <label for="client-country">Country:</label>
-            <input type="text" id="client-country" name="country" required>
+            <input type="text" id="client-country" name="country" required value="<%= oldOutput.oldCountry %>">
 
             <label for="client-zip">ZIP Code:</label>
-            <input type="text" id="client-zip" name="zipcode" required>
+            <input type="text" id="client-zip" name="zipcode" required value="<%= oldOutput.oldZipcode %>">
         </div>
 
         <div class="section">
             
             <label for="date-of-issue">Date Of Issue:</label>
-            <input type="date" id="date-of-issue" name="dateOfIssue" required>
+            <input type="date" id="date-of-issue" name="dateOfIssue" required value="<%= oldOutput.olddof %>">
         </div>
         <span>
             <button type="button" onclick="onFunc()">Add </button>
             <div class="section" id="itemss" name="items">
                 <h2>Itemized Billing</h2>
+                <% oldOutput.oldStuff.forEach((arr)=>{ %>
+
+                    <div class="item">
+                        <fieldset>
+                        <label for="description-2">Description:</label>
+                        <input type="text" id="description" class="description" name="description" value="<%= arr.description %>" required>
+        
+                        <label for="unit-cost-2">Unit Cost:</label>
+                        <input type="number" id="unit-cost" class="unit-cost" name="unitCost" value="<%= arr.unitPrice %>" required>
+        
+                        <label for="quantity-2">Quantity:</label>
+                        <input type="number" id="quantity" class="quantity" name="quantity" value="<%= arr.quantity %>" required>
+    
+                        </fieldset>
+                    </div>
+
+               <% }) %>
             </div>
         </span>
         
         <div class="section">
             <h2>Summary</h2>
-            <input type="hidden" id="subtotal" name="subtotal" required>
+            <input type="hidden" id="subtotal" name="subtotal" required value="<%= oldOutput.oldSubtotal %>">
 
             <label for="tax">Tax:</label>
-            <input type="number" id="tax" name="tax" required>
+            <input type="number" id="tax" name="tax" required value="<%= oldOutput.oldTax %>">
 
-            <input type="hidden" id="total" name="totalPrice" required>
+            <input type="hidden" id="total" name="totalPrice" required> 
         </div>
-
+        
         <div class="section">
             <button type="submit">Create Invoice</button>
         </div>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     </form>
 </div>
 
@@ -84,7 +104,6 @@
 
                 <label for="quantity-2">Quantity:</label>
                 <input type="number" id="quantity" class="quantity" name="quantity" required>
-
                 
                 </fieldset>
             </div>`;

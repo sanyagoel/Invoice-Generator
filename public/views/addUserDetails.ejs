@@ -7,33 +7,35 @@
     <link rel="stylesheet" href="../clientstyle.css"/>
 </head>
 <body>
-
+    <%- include('../includes/nav.ejs') %>
 <div class="form-container">
     <h1>User Details</h1>
     <form action="/updateDetails" method="POST">
 
         <div class="section">
             <label for="website">Website:</label>
-            <input type="text" id="website" name="website" required>
+            <input type="text" id="website" name="website" value=<%= user.website %>>
             <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required>
+            <input type="text" id="address" name="address" value=<%= user.address %>>
 
             <label for="city">City:</label>
-            <input type="text" id="city" name="city" required>
+            <input type="text" id="city" name="city" value=<%= user.city %>>
 
             <label for="state">State:</label>
-            <input type="text" id="state" name="state" required>
+            <input type="text" id="state" name="state"  value=<%= user.state %>>
 
             <label for="country">Country:</label>
-            <input type="text" id="country" name="country" required>
+            <input type="text" id="country" name="country"  value=<%= user.country %>>
 
             <label for="zipcode">ZIP Code:</label>
-            <input type="text" id="zipcode" name="zipcode" required>
+            <input type="text" id="zipcode" name="zipcode"  value=<%= user.zipcode %>>
         </div>
 
         <div class="section">
             <button type="submit">Submit</button>
         </div>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
     </form>
 </div>
 

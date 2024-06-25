@@ -15,6 +15,15 @@ const userSchema = mongoose.Schema({
         type : String,
         required : true
     },
+
+    mailToken : {
+        type : String
+    },
+
+    mailTokenExpire : {
+        type : Date
+    },
+    
     phone :{
         type: Number,
         required : true

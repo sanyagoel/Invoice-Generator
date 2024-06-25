@@ -4,11 +4,29 @@ const puppeteer = require('puppeteer');
 const ejs = require('ejs');
 const path = require('path');
 const fs = require('fs');
-
+const {validationResult} = require('express-validator');
 const { sendMail, sendInvoiceMail} = require('./mail');
 
 const getaddClient = (req,res,next)=>{
-   res.render('addClient.ejs');
+   res.render('addClient.ejs', {
+    errors : [],
+    oldOutput : {
+      oldName : '',
+      oldEmail : '',
+      oldPhone : '',
+      oldBusiness : '',
+      oldAddress : '',
+      oldCity : '',
+      oldState : '',
+      oldCountry : '',
+      oldZipcode : '',
+      oldStuff : [],
+      oldSubtotal : '',
+      oldTax : '',
+      olddof : ''
+    },
+    errorMessage : ''}
+   );
 }
 const rootDir = require('../utils/path');
 
@@ -43,8 +61,32 @@ async function printPDF(userData) {
 
 const postaddClient = async (req, res, next) => {
     try {
-      const userid = req.user.id;
+      const userid = req.session.user._id;
       const { name, email, phone, business, address, city, state, country, zipcode, stuff, subtotal, tax, totalPrice, dateOfIssue } = req.body;
+      const result = validationResult(req);
+      const errors = result.array();
+      console.log(errors);
+      if(!result.isEmpty()){
+        return res.render('addClient.ejs',{
+          errors : errors,
+          oldOutput : {
+            oldName : name,
+            oldEmail : email,
+            oldPhone : phone,
+            oldBusiness : business,
+            oldAddress : address,
+            oldCity : city,
+            oldState : state,
+            oldCountry : country,
+            oldZipcode : zipcode,
+            oldStuff : JSON.parse(stuff),
+            oldSubtotal : subtotal,
+            oldTax : tax,
+            olddof : dateOfIssue
+          },
+          errorMessage : errors[0].msg
+        });
+      }
       let stuff1 = JSON.parse(stuff);
       const invoiceNo = Math.floor(Math.random() * Math.floor(Math.random() * Date.now()));
       const newClient = new Client({
@@ -106,9 +148,9 @@ const postaddClient = async (req, res, next) => {
 
 
 const getClients =async (req,res,next)=>{
-    const userID = req.user.id;
+    const userID = req.session.user._id;
     const clients = await Client.find({userID : userID});
-    console.log(clients);
+    //console.log(clients);
     res.render('getClients.ejs',{clients : clients});
 }
 

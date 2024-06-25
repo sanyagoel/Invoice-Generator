@@ -7,17 +7,33 @@
     <link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
+
     <div class="container">
         <h2>Login</h2>
-        <form action="/login" method="POST">
-            <input type="email" id="email" name="email" placeholder="Email" required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
+        <div class="errormessage">
+            <p><%= timeup %></p>
+        </div>
+        <div class="errormessage">
+            <p><%= errorEmail %></p>
+        </div>
+        <div class="errormessage">
+            <p><%= errorPass %></p>
+        </div>
+        <div class="errormessage">
+            <p><%= linkExpire %></p>
+        </div>
+        <form action="/login" method="POST" novalidate>
+            <input type="email" id="email" name="email" placeholder="Email" class="<%= errors.find((p)=>p.path === 'email') ? 'redBox' : '' %>"  required value="<%= oldEmail %>" >
+            <input type="password" id="password" name="password" placeholder="Password" value ="<%= oldPassword %>" class="<%= errors.find((p)=>p.path === 'password') ? 'redBox' : '' %>"  required>
             <button type="submit">LogIn</button>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         </form>
         <div>
             <p>Sign up if you dont already have an account! :3</p>
             <a href="/">SIGN UP</a>
-
+        </div>
+        <div>
+            <a href="/reset">Reset Password</a>
         </div>
     </div>
 </body>

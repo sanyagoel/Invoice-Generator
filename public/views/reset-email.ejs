@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESET PASSWORD</title>
+    <link rel="stylesheet" href="../style.css"/>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Reset Passwords</h2>
+        <div class="errormessage">
+            <p><%= emailmis %></p>
+        </div>
+        <form action="/reset" method="POST">
+            <input type="email" name="mail" placeholder="Enter email" required>
+            <button type="submit">Reset Password</button>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        </form>
+    </div>
+</body>
+</html>
