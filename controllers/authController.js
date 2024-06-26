@@ -17,6 +17,8 @@ var redisClient = redis.createClient();
 //     console.log(err);
 // })
 
+
+
 const auth = (req,res,next)=>{
     //let token =  req.cookies.token;
     // //console.log(token);

@@ -82,7 +82,9 @@ const createAccount = async (req, res, next) => {
       //res.setHeader('Authorization', `Bearer ${token}`);
     
   } catch (err) {
-    console.log(err);
+    const erro = new Error(err);
+    erro.httpStatusCode = 500;
+    return next(erro);
   }
 };
 
@@ -119,7 +121,9 @@ const logAccount = async (req, res, next) => {
     }
     
   } catch (err) {
-    console.log(err);
+    const erro = new Error(err);
+      erro.httpStatusCode = 500;
+      return next(erro);
   }
 };
 
@@ -155,6 +159,7 @@ const postUserDetails = async(req,res,next)=>{
 }
 
 const getresetPassword = async(req,res,next)=>{
+try{
   const token = req.params.token;
   const user = await User.findOne({mailToken : token ,mailTokenExpire:  {$gt: Date.now()}});
   if(!user){
@@ -167,10 +172,17 @@ const getresetPassword = async(req,res,next)=>{
     token : token,
     user_id : user._id
   });
+}catch(err){
+  const erro = new Error(err);
+  erro.httpStatusCode = 500;
+  return next(erro);
+}
 }
 
 const resetPassword = async(req,res,next)=>{
+try{
   const {token,userID,password,match_password} = req.body;
+  //throw new Error('dummyy');
   const user = await User.findOne({mailToken : token ,mailTokenExpire:  {$gt: Date.now()},_id : userID});
   if(!user){
     req.flash('expired','Your link has expired, please send another request');
@@ -186,6 +198,11 @@ const resetPassword = async(req,res,next)=>{
   user.mailTokenExpire = undefined;
   await user.save();
   return res.redirect('/log');
+}catch(err){
+  const erro = new Error(err);
+  erro.httpStatusCode = 500;
+  return next(erro);
+}
 }
 
 const reset = async(req,res,next)=>{
@@ -196,20 +213,26 @@ const reset = async(req,res,next)=>{
 
 const postreset=async(req,res,next)=>{
     
-    const {mail} = req.body;
-    const user = await User.findOne({email : mail});
-    crypto.randomBytes(32,async (err,buffer)=>{
-    if(!user){
-      req.flash('emailmiss','This email does not belong to any account.');
-      return res.redirect('/reset');
-    }
-    const token = buffer.toString('hex');
-    user.mailToken = token;
-    user.mailTokenExpire = Date.now() + 600000;
-    await user.save();
-    sendPasswordMail(user.email,token);
-    res.redirect('/log');
-    })
+ try{
+  const {mail} = req.body;
+  const user = await User.findOne({email : mail});
+  crypto.randomBytes(32,async (err,buffer)=>{
+  if(!user){
+    req.flash('emailmiss','This email does not belong to any account.');
+    return res.redirect('/reset');
+  }
+  const token = buffer.toString('hex');
+  user.mailToken = token;
+  user.mailTokenExpire = Date.now() + 600000;
+  await user.save();
+  sendPasswordMail(user.email,token);
+  res.redirect('/log');
+  })
+ }catch(err){
+  const erro = new Error(err);
+  erro.httpStatusCode = 500;
+  return next(erro);
+ }
 }
 
 const logOut = async(req,res,next)=>{
@@ -219,6 +242,9 @@ const logOut = async(req,res,next)=>{
   });
 }
 
+const getAboutUs = (req,res,next)=>{
+  res.render('AboutUs');
+}
 
-module.exports = { createAccount,logAccount,getHome,create,log , getUserDetails,postUserDetails,logOut,resetPassword,getresetPassword,reset,postreset};
+module.exports = { createAccount,logAccount,getHome,create,log , getUserDetails,postUserDetails,logOut,resetPassword,getresetPassword,reset,postreset,getAboutUs};
 

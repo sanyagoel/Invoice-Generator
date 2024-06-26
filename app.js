@@ -3,7 +3,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf'); 
 const {MONGO_URI} = require('./utils/db');
-
+const {get404,get500} = require('./controllers/errorController');
 const app = express();
 const bodyparser = require('body-parser');
 const { default: mongoose } = require('mongoose');
@@ -58,8 +58,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/500',get500);
 
 app.use('/', userRouter);
+
+app.use(get404);
+
+app.use((err,req,res,next)=>{
+  res.redirect('/500');
+})
 
 app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN') {

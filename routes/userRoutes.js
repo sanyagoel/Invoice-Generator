@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const {createAccount, logAccount ,getHome,create,log,getUserDetails,postUserDetails,logOut,resetPassword, getresetPassword,reset,postreset} = require('../controllers/userController');
+const {createAccount, logAccount ,getHome,create,log,getUserDetails,postUserDetails,logOut,resetPassword, getresetPassword,reset,postreset,getAboutUs} = require('../controllers/userController');
 const {auth} = require('../controllers/authController');
 const {getaddClient,postaddClient,getClients, sendInvoice} = require('../controllers/clientController');
 const {check,body} = require('express-validator');
@@ -54,6 +54,8 @@ router.post('/resetPassword',resetPassword);
 router.get('/reset',reset);
 
 router.post('/reset',postreset);
+
+router.get('/AboutUs',getAboutUs);
 
 module.exports = router;
 

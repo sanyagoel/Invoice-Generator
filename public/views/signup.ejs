@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <link rel="stylesheet" href="../style.css"/>
+    <link rel="stylesheet" href="signupHOME.css"/>
 </head>
 <body>
+    <%- include('../includes/regnav.ejs') %>
     <div class="container">
-        
+        <main class="concontent">
         <h2>Sign Up</h2>
         <div class="errormessage">
             <p><%= alrex %></p>
         </div>
-        <form action="/register" method="POST" novalidate>
+        <form action="/register" method="POST" novalidate class="signform">
 
             <input type="text" id="name" name="name" placeholder="Name"required>
             <input type="email" id="email" name="email" placeholder="Email" value="oldEmail" class="<%= errors.find((p)=>p.path === 'email') ? 'redBox' : '' %>" required>
@@ -23,11 +25,11 @@
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
         </form>
-        <div>
+        <div class="logfor">
             <p>Log In if you already have an account! :3</p>
             <a href="/log">LOGIN</a>
-
         </div>
+        </main>
     </div>
 </body>
 </html>

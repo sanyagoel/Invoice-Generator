@@ -55,7 +55,9 @@ async function printPDF(userData) {
 
     } catch (error) {
         console.error('Error generating PDF:', error);
-        throw error; // Rethrow the error to handle it in the calling function
+        const err = new Error(error);
+      err.httpStatusCode = 500;
+      return next(err);
     }
 }
 
@@ -66,6 +68,7 @@ const postaddClient = async (req, res, next) => {
       const result = validationResult(req);
       const errors = result.array();
       console.log(errors);
+      throw new Error('dummy');
       if(!result.isEmpty()){
         return res.render('addClient.ejs',{
           errors : errors,
@@ -141,8 +144,9 @@ const postaddClient = async (req, res, next) => {
       sendInvoiceMail(data.email,data2,data);
       return res.redirect('/home');
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      res.status(500).send('Internal Server Error');
+      const err = new Error(error);
+      err.httpStatusCode = 500;
+      return next(err);
     }
   };
 
