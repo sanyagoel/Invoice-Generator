@@ -9,6 +9,7 @@
 <body>
     <%- include('../includes/nav.ejs') %>
     <% clients.forEach((client)=>{ %>
+        <article>
         <div> <p><%= client.name %></p> </div>
         <div> <p><%= client.business %></p> </div>
         <div> <p><%= client.invoiceNumber %></p> </div>
@@ -20,8 +21,14 @@
             <input type="hidden" name="clientID" value="<%= client._id %>">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         </form>
+
+        <div class="deleteClientSide">
+            <button type="button" data-csrf = "<%= csrfToken %>" data-clientid = "<%= client._id %>" onclick="deleteClientt(this)">Delete the Client</button>
+        </div>
+    </article>
         <!-- <form action="/sendInvoice" method="POST"><input type="hidden" name="clientID" value="<%= client._id %>"><button type="submit" >Send Invoice</button></form> -->
     <% }) %>
+
     <section class="pagination">
         <a href="/getClients?page=1"> First </a>
         <% if (curpage > 1) { %>
@@ -37,6 +44,8 @@
         <a href="/getClients?page=<%= totalPages %>">  Last  </a>
     </section>
 </body>
+
+<script src="../js/admin.js"></script>
 </html>
 
 

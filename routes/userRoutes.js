@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const {createAccount, logAccount ,getHome,create,log,getUserDetails,postUserDetails,logOut,resetPassword, getresetPassword,reset,postreset,getAboutUs} = require('../controllers/userController');
 const {auth} = require('../controllers/authController');
-const {getaddClient,postaddClient,getClients, downloadpdf} = require('../controllers/clientController');
+const {getaddClient,postaddClient,getClients, downloadpdf,deleteClientinfo} = require('../controllers/clientController');
 const {check,body} = require('express-validator');
 const User = require('../models/user');
 const multer = require('multer');
@@ -81,6 +81,8 @@ router.post('/reset',check('mail').isEmail().withMessage('The email is not valid
 router.get('/AboutUs',getAboutUs);
 
 router.post('/download-pdf',auth,downloadpdf);
+
+router.delete('/deleteClient/:clientID',auth,deleteClientinfo);
 
 module.exports = router;
 
