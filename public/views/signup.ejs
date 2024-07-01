@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <link rel="stylesheet" href="../style.css"/>
     <link rel="stylesheet" href="signupHOME.css"/>
+    <link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
     <%- include('../includes/regnav.ejs') %>
@@ -17,10 +17,10 @@
         </div>
         <form action="/register" method="POST" novalidate class="signform">
 
-            <input type="text" id="name" name="name" placeholder="Name"required>
-            <input type="email" id="email" name="email" placeholder="Email" value="oldEmail" class="<%= errors.find((p)=>p.path === 'email') ? 'redBox' : '' %>" required>
-            <input type="password" id="password" name="password" placeholder="Password" value="oldPassword" class="<%= errors.find((p)=>p.path === 'password') ? 'redBox' : '' %>"  required>
-            <input type="text" id="phone" name="phone" placeholder="Phone Number" class="<%= errors.find((p)=>p.path === 'phone') ? 'redBox' : '' %>"  required>
+            <input type="text" id="name" name="name" placeholder="Name"required value="<%= oldName %>">
+            <input type="email" id="email" name="email" placeholder="Email" value="<%= oldEmail %>" class="<%= errors.find((p)=>p.path === 'email') ? 'redBox' : '' %>" required>
+            <input type="password" id="password" name="password" placeholder="Password"  class="<%= errors.find((p)=>p.path === 'password') ? 'redBox' : '' %>"  required>
+            <input type="text" id="phone" name="phone" placeholder="Phone Number" value = "<%= oldPhone %>" class="<%= errors.find((p)=>p.path === 'phone') ? 'redBox' : '' %>"  required>
             <button type="submit">Sign Up</button>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 

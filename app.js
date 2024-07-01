@@ -30,8 +30,11 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(rootDir, 'public', 'views'));
 
 app.use(express.static(path.join(rootDir, 'public')));
+app.use('/images',express.static(path.join(rootDir, 'images')));
+//app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(bodyparser.urlencoded({ extended: true }));
+
 
 app.use(session({
   secret: process.env.SESSION_SECRETKEY,
@@ -53,10 +56,12 @@ app.use(csrfprotection);
 
 // app.use(csrfSynchronisedProtection);
 
+
 app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   next();
 });
+
 
 app.get('/500',get500);
 
@@ -65,6 +70,7 @@ app.use('/', userRouter);
 app.use(get404);
 
 app.use((err,req,res,next)=>{
+  console.log(err);
   res.redirect('/500');
 })
 

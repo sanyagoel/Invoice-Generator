@@ -3,16 +3,39 @@ const express = require('express');
 const router = express.Router();
 const {createAccount, logAccount ,getHome,create,log,getUserDetails,postUserDetails,logOut,resetPassword, getresetPassword,reset,postreset,getAboutUs} = require('../controllers/userController');
 const {auth} = require('../controllers/authController');
-const {getaddClient,postaddClient,getClients, sendInvoice} = require('../controllers/clientController');
+const {getaddClient,postaddClient,getClients, downloadpdf} = require('../controllers/clientController');
 const {check,body} = require('express-validator');
 const User = require('../models/user');
+const multer = require('multer');
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'images/')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now(); //+ '-' + Math.round(Math.random() * 1E9)
+      cb(null,  uniqueSuffix + '-' + file.originalname )
+    }
+  })
+
+const uploadImage = multer({storage : storage, fileFilter : function(req,file,cb){
+    if(file.mimetype==='image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg'){
+      cb(null,true);
+    }
+    else{
+      cb(null,false);
+    }
+  }});
+
+
 router.get('/home',auth,getHome);
 
 router.get('/log',log);
 
 router.get('/',create);
 
-router.post('/register',check('email').isEmail().normalizeEmail().withMessage('The Email You Entered Is Not Valid :(').custom(async (value, {req})=>{
+router.post('/register',check('email').isEmail().withMessage('The Email You Entered Is Not Valid :(').custom(async (value, {req})=>{
 
     const user = await User.findOne({ email: value });
     if (user) {
@@ -39,7 +62,7 @@ router.post('/addClient',auth,[check('email','Please enter valid Email.').isEmai
 
 router.get('/updateDetails',auth,getUserDetails);
 
-router.post('/updateDetails',auth,postUserDetails);
+router.post('/updateDetails',auth,uploadImage.single('image'),postUserDetails);
 
 router.get('/getClients',auth,getClients);
 
@@ -53,9 +76,11 @@ router.post('/resetPassword',resetPassword);
 
 router.get('/reset',reset);
 
-router.post('/reset',postreset);
+router.post('/reset',check('mail').isEmail().withMessage('The email is not valid.'),postreset);
 
 router.get('/AboutUs',getAboutUs);
+
+router.post('/download-pdf',auth,downloadpdf);
 
 module.exports = router;
 

@@ -3,9 +3,11 @@ const User = require('../models/user.js');
 const puppeteer = require('puppeteer');
 const ejs = require('ejs');
 const path = require('path');
+const rootDir = require('../utils/path');
 const fs = require('fs');
 const {validationResult} = require('express-validator');
 const { sendMail, sendInvoiceMail} = require('./mail');
+const TOTAL_ITEMS_PERPAGE = 3;
 
 const getaddClient = (req,res,next)=>{
    res.render('addClient.ejs', {
@@ -28,7 +30,6 @@ const getaddClient = (req,res,next)=>{
     errorMessage : ''}
    );
 }
-const rootDir = require('../utils/path');
 
 async function printPDF(userData) {
     try {
@@ -47,10 +48,10 @@ async function printPDF(userData) {
         await browser.close();
         console.log('Browser closed');
 
-        // const pdfPath = path.join(rootDir, 'invoices', `invoice_${userData.invoiceNumber}.pdf`);
-        // fs.writeFile(pdfPath, pdf,(data)=>{console.log(data)});
-        // console.log(`Invoice PDF saved to: ${pdfPath}`);
-        
+        const pdfPath = path.join(rootDir, 'invoices', `invoice_${userData.invoiceNumber}.pdf`);
+        fs.writeFile(pdfPath, pdf,(data)=>{console.log(data)});
+        console.log(`Invoice PDF saved to: ${pdfPath}`);
+    
         return pdf;
 
     } catch (error) {
@@ -68,7 +69,7 @@ const postaddClient = async (req, res, next) => {
       const result = validationResult(req);
       const errors = result.array();
       console.log(errors);
-      throw new Error('dummy');
+      //throw new Error('dummy');
       if(!result.isEmpty()){
         return res.render('addClient.ejs',{
           errors : errors,
@@ -111,7 +112,7 @@ const postaddClient = async (req, res, next) => {
         invoiceNumber: invoiceNo
       });
       await newClient.save();
-  
+      console.log('before data',invoiceNo)
       const user = await User.findOne({ _id: userid });
       const data = {
         name,
@@ -139,7 +140,10 @@ const postaddClient = async (req, res, next) => {
         yourCountry: user.country,
         yourZipcode: user.zipcode
       };
+      console.log('after data' , invoiceNo);
       const data2 = await printPDF(data);
+      // newClient.pdf = data2;
+      // await newClient.save();
       //console.log(data2,"haaaaaaaaaaaaaaaa");
       sendInvoiceMail(data.email,data2,data);
       return res.redirect('/home');
@@ -152,11 +156,16 @@ const postaddClient = async (req, res, next) => {
 
 
 const getClients =async (req,res,next)=>{
+    const curpage = req.query.page || 1 ;
     const userID = req.session.user._id;
-    const clients = await Client.find({userID : userID});
+    //console.log(userID);
+    const total_products = await Client.countDocuments({userID : userID});
+    const totalPages = Math.ceil(total_products/TOTAL_ITEMS_PERPAGE);
+    const clients = await Client.find({userID : userID}).skip((curpage-1)*TOTAL_ITEMS_PERPAGE).limit(TOTAL_ITEMS_PERPAGE);
     //console.log(clients);
-    res.render('getClients.ejs',{clients : clients});
+    res.render('getClients.ejs',{clients : clients, curpage : curpage, totalPages : totalPages });
 }
+
 
 // const sendInvoice = async(req,res,next)=>{
 //   const clientId = req.body.clientID;
@@ -171,4 +180,29 @@ const getClients =async (req,res,next)=>{
 
 
 
-module.exports = { getaddClient,postaddClient,getClients};
+const downloadpdf = async (req, res, next) => {
+  try {
+    const clientID = req.body.clientID;
+    const client = await Client.findById(clientID);
+    console.log(client);
+    const pdfname = `invoice_${client.invoiceNumber}.pdf`;
+    const pdfPath = path.join(rootDir , 'invoices' , pdfname);
+    
+    // fs.readFile(pdfPath,(err,data)=>{
+    //   if(err){
+    //     return next(err);
+    //   }
+    //   res.setHeader('Content-Type', 'application/pdf');
+    //   return res.send(data);
+    // })
+
+    const file = fs.createReadStream(pdfPath);
+    res.setHeader('Content-Type', 'application/pdf');
+    file.pipe(res);
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+module.exports = { getaddClient,postaddClient,getClients,downloadpdf};

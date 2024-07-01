@@ -119,3 +119,33 @@ nav a.active {
     }
 }
 
+.pagination{
+    font-size: 1em;
+    margin: auto;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.pagination a:link{
+    display: inline-block;
+    color: #ff5733;
+    text-decoration: none;
+    border: #4CAF50;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.pagination a:visited{
+    color: #ff5733;
+    border: #4CAF50;
+}
+
+.pagination a:hover , .pagination a:active{
+    color: #4CAF50;
+    border: #ff5733;
+    background-color: aqua;
+}
+
+.activepage{
+    background-color: darkorchid;
+}

@@ -51,6 +51,10 @@ const userSchema = mongoose.Schema({
     zipcode : {
         type : String,
     }
+    ,
+    image : {
+        type : String
+    }
 
 })
 

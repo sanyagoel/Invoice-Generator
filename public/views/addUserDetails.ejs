@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Details Form</title>
     <link rel="stylesheet" href="../clientstyle.css"/>
+    <link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
     <%- include('../includes/nav.ejs') %>
 <div class="form-container">
     <h1>User Details</h1>
-    <form action="/updateDetails" method="POST">
-
+    <div class="errormessage"><%= error %></div>
+    <form action="/updateDetails?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
         <div class="section">
             <label for="website">Website:</label>
             <input type="text" id="website" name="website" value=<%= user.website %>>
@@ -29,13 +30,15 @@
 
             <label for="zipcode">ZIP Code:</label>
             <input type="text" id="zipcode" name="zipcode"  value=<%= user.zipcode %>>
+
+            <label for="image">Your Logo :</label>
+            <input type="file" id="image" name="image" >
         </div>
 
         <div class="section">
             <button type="submit">Submit</button>
         </div>
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
+       
     </form>
 </div>
 

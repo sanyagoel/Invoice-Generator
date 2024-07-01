@@ -1,0 +1,123 @@
+
+
+
+body {
+    background: #31222A;
+    padding: 0%;
+    margin: 0%;
+    height: 120vh;
+}
+
+.container h2{
+    font-size: 3rem;
+    color: white;
+}
+
+.container{
+    background-color: #5B506E;
+    border-radius: 40px;
+    width: 100%;
+    max-width: 440px;
+    padding: 1rem;
+    margin: auto;
+    height: 100%;
+    max-height: 490px;
+    margin-top: 110px;
+}
+
+.container input {
+    display: block;
+    margin: auto;
+    padding: 0.8rem;
+    border-radius: 40px;
+    text-align: center;
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+    outline: none;
+    border: none;
+    line-height: 1em;
+    background-color: #fa82a6;
+    color: white;
+    width: 100%;
+    max-width: 350px;
+}
+
+.container input::placeholder{
+    color: white;
+    opacity: 0.7;
+}
+
+.container button{
+    display: block;
+    margin: auto;
+    padding: 0.8rem;
+    font-size: 1.25rem;
+    border-radius: 40px;
+    margin-top: 21px;
+    border: none;
+    outline: none;
+    width: 60%;
+    background-color: #fa82a6;
+    color: white;
+}
+
+.container button:hover{
+    background-color:#834457 ;
+}
+
+.mcontent{
+    margin: auto;
+    display: block;
+    text-align: center;
+}
+
+.signfor{
+    margin-top: 40px;
+    color:white ;
+    font-size: 1.25rem;
+}
+
+.signfor a{
+    display: block;
+    margin-bottom: 10px;
+    color: #fa82a6;
+    text-decoration: none;
+    font-size: 1.25rem;
+}
+
+.signfor a:hover{
+    color: aliceblue;
+}
+
+.llin{
+    margin-top: 37px;
+}
+
+.navstyle{
+    background-color: #59424c;
+    border: none;
+    border-radius: 5px;
+    padding: 0.8rem;
+}
+
+.navstyle a{
+    background-color: #c0b2d7;
+    border-radius: 25px;
+    padding: 0.85rem;
+    width: 100%;
+    max-width: 120px;
+    display: block;
+    text-align: center;
+    font-size: 1.25rem;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.navstyle a:hover{
+    background-color: aliceblue;
+}
+
+a:link{
+    color: black;
+    text-decoration: none;
+}

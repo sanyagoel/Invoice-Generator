@@ -1,3 +1,8 @@
 <nav class="navstyle">
     <a href="/AboutUs">About Us</a>
-</nav>
+    <% if (typeof know !== 'undefined' && know === "yes") { %>
+      <a href="/log">Login</a>
+      <a href="/">Signup</a>
+    <% } %>
+  </nav>
+  

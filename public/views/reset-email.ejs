@@ -4,20 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RESET PASSWORD</title>
+    <link rel="stylesheet" href="../loginC.css"/>
     <link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
-
+    <%- include('../includes/regnav.ejs',{know : know}) %>
+    <!-- <h1>  here <%=  know %></h1> -->
     <div class="container">
+        <main class="mcontent">
         <h2>Reset Passwords</h2>
+        <div class="errormessage">
+            <%= errors %>
+        </div>
         <div class="errormessage">
             <p><%= emailmis %></p>
         </div>
-        <form action="/reset" method="POST">
+        <form action="/reset" method="POST" novalidate>
             <input type="email" name="mail" placeholder="Enter email" required>
             <button type="submit">Reset Password</button>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         </form>
+    </main>
     </div>
 </body>
 </html>

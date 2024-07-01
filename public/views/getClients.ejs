@@ -14,8 +14,28 @@
         <div> <p><%= client.invoiceNumber %></p> </div>
         <div> <p><%= client.totalPrice %></p> </div>
         <div> <p><%= client.invoiceNumber %></p> </div>
+        
+        <form action="/download-pdf" method="POST">
+            <button type="submit">Download Invoice</button>
+            <input type="hidden" name="clientID" value="<%= client._id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        </form>
         <!-- <form action="/sendInvoice" method="POST"><input type="hidden" name="clientID" value="<%= client._id %>"><button type="submit" >Send Invoice</button></form> -->
     <% }) %>
+    <section class="pagination">
+        <a href="/getClients?page=1"> First </a>
+        <% if (curpage > 1) { %>
+            <a href="/getClients?page=<%= curpage - 1 %>"><%=  parseInt(curpage) - 1 %></a>
+        <% } %>
+        
+        <span class="activepage"><%= curpage %></span>
+        
+
+        <% if (curpage < totalPages) { %>
+            <a href="/getClients?page=<%= parseInt(curpage) + 1 %>"> <%= parseInt(curpage) + 1 %> </a>
+        <% } %>
+        <a href="/getClients?page=<%= totalPages %>">  Last  </a>
+    </section>
 </body>
 </html>
 

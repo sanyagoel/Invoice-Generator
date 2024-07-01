@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogIn</title>
+    <link rel="stylesheet" href="../loginC.css"/>
     <link rel="stylesheet" href="../style.css"/>
+
     
 </head>
 <body>
-
+    <%- include('../includes/regnav.ejs') %>
     <div class="container">
+        <main class="mcontent">
         <h2>Login</h2>
         <div class="errormessage">
             <p><%= timeup %></p>
@@ -29,13 +32,15 @@
             <button type="submit">LogIn</button>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         </form>
-        <div>
+        <div class="signfor">
             <p>Sign up if you dont already have an account! :3</p>
-            <a href="/">SIGN UP</a>
-        </div>
-        <div>
+            <div class="llin">
+                <a href="/">SIGN UP</a>
             <a href="/reset">Reset Password</a>
+            </div>
+            
         </div>
+    </main>
     </div>
 </body>
 </html>

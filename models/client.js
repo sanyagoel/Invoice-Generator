@@ -77,6 +77,10 @@ const clientSchema = mongoose.Schema({
 
     invoiceNumber : {
         type : String
+    },
+
+    pdf : {
+        type : Buffer
     }
 }, {timestamps : true})
 

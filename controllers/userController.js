@@ -8,8 +8,8 @@ const {validationResult} = require('express-validator');
 // var redisClient = redis.createClient();
 // const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const {deleteFile} = require('../utils/file');
 const {sendMail,sendInvoiceMail,sendPasswordMail} = require('./mail');
-
 
 // const initialise = async ()=>{
 //   await redisClient.connect();
@@ -30,7 +30,9 @@ const create = (req,res,next)=>{
       alrex : req.flash('existsalr'),
       errors : [],
       oldEmail : '',
-      oldPassword : ''
+      oldPassword : '',
+      oldName : '',
+      oldPhone : ''
     });
 }
 
@@ -58,7 +60,8 @@ const createAccount = async (req, res, next) => {
       alrex : errors[0].msg,
       errors : errors,
       oldEmail : email,
-      oldPassword : password
+      oldName : name,
+      oldPhone : phone
     })
     }
     
@@ -84,6 +87,7 @@ const createAccount = async (req, res, next) => {
   } catch (err) {
     const erro = new Error(err);
     erro.httpStatusCode = 500;
+    console.log(err)
     return next(erro);
   }
 };
@@ -131,7 +135,8 @@ const getHome = async(req,res,next)=>{
     //console.log(req.user);
     const id = req.session.user._id;
     const user =await User.findOne({_id : id});
-    res.render('home.ejs', {name : user.name});
+    console.log(user);
+    res.render('home.ejs', {name : user.name , image : user.image});
 }
 
 const getUserDetails = async(req,res,next)=>{
@@ -139,20 +144,35 @@ const getUserDetails = async(req,res,next)=>{
 
   const user = await User.findOne({_id : userID});
   console.log(user);
-    res.render('addUserDetails.ejs', {user :  user });
+    res.render('addUserDetails.ejs', {user :  user, error : '' });
 }
 
 const postUserDetails = async(req,res,next)=>{
     const userID = req.session.user._id;
+    const user = await User.findOne({_id : userID});
+   // console.log(user);
     const {website,address,city,state,country,zipcode} = req.body;
-
+    const image = req.file;
+    let imgpath;
+    if(image){
+      imgpath = image.path;
+      deleteFile(user.image);
+    }
+    console.log('multer image',image);
+    if(!image){
+        if(!user.image){
+          return res.render('addUserDetails.ejs', {user :  user,error : 'The Image Is Not Valid' });
+        }
+        imgpath = user.image;
+    }
     const updateUser = await User.findByIdAndUpdate(userID,{
         website : website,
         address : address,
         city : city,
         state : state,
         country : country,
-        zipcode : zipcode
+        zipcode : zipcode,
+        image : imgpath
     })
     res.redirect('/home');
     console.log(updateUser);
@@ -207,13 +227,25 @@ try{
 
 const reset = async(req,res,next)=>{
   res.render('reset-email.ejs',{
-    emailmis : req.flash('emailmiss')
+    emailmis : req.flash('emailmiss'),
+    errors : '',
+    know : "yes"
   });
 }
 
 const postreset=async(req,res,next)=>{
     
  try{
+  const result2 = validationResult(req);
+  const errors = result2.array();
+  console.log(errors);
+  if(!result2.isEmpty()){
+   return res.render('reset-email.ejs',{
+      emailmis : req.flash('emailmiss'),
+      errors : errors[0].msg,
+      know : "yes"
+    })
+  }
   const {mail} = req.body;
   const user = await User.findOne({email : mail});
   crypto.randomBytes(32,async (err,buffer)=>{
