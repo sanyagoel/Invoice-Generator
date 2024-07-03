@@ -136,7 +136,7 @@ const getHome = async(req,res,next)=>{
     const id = req.session.user._id;
     const user =await User.findOne({_id : id});
     console.log(user);
-    res.render('home.ejs', {name : user.name , image : user.image});
+    res.render('home.ejs', {name : user.name , image : user.image, path : 'toHome'});
 }
 
 const getUserDetails = async(req,res,next)=>{

@@ -149,3 +149,7 @@ nav a.active {
 .activepage{
     background-color: darkorchid;
 }
+
+.active{
+    background-color: #d875e5;
+}

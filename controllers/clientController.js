@@ -34,8 +34,17 @@ const getaddClient = (req, res, next) => {
 async function printPDF(userData) {
   try {
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox"],
+      executablePath:
+        process.env.NODE_ENV === "production"
+          ? process.env.PUPPETEER_EXECUTABLE_PATH
+          : puppeteer.executablePath(),
+  
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ],
+      headless: true, // or false to show the browser UI
     });
     const page = await browser.newPage();
 
