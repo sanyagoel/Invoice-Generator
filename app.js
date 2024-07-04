@@ -83,6 +83,55 @@ app.use((err, req, res, next) => {
   }
 });
 
+
+//Paytm integration
+// const axios = require('axios');
+
+// PHONEPE_MERCHANTID=process.env.PHONEPE_MERCHANTID
+// PHONEPE_KEYINDEX=process.env.PHONEPE_KEYINDEX
+// PHONEPE_KEY=process.env.PHONEPE_KEY
+// PHONEPE_HOSTURL=process.env.PHONEPE_HOSTURL
+
+// app.post('/pay',(req,res,next)=>{
+
+
+//   const payload = {
+//     "merchantId": PHONEPE_MERCHANTID,
+//     "merchantTransactionId": "MT7850590068188104",
+//     "merchantUserId": "MUID123",
+//     "amount": 10000,
+//     "redirectUrl": "https://webhook.site/redirect-url",
+//     "redirectMode": "REDIRECT",
+//     "callbackUrl": "https://webhook.site/callback-url",
+//     "mobileNumber": "9999999999",
+//     "paymentInstrument": {
+//       "type": "PAY_PAGE"
+//     }
+//   }
+  
+
+
+//   const options = {
+//     method: 'post',
+//     url: 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay',
+//     headers: {
+//           accept: 'text/plain',
+//           'Content-Type': 'application/json',
+//           },
+//   data: {
+//   }
+//   };
+//   axios
+//     .request(options)
+//         .then(function (response) {
+//         console.log(response.data);
+//     })
+//     .catch(function (error) {
+//       console.error(error);
+//     });
+// })
+
+
 mongoose.connect(MONGO_URI).then(() => {
   console.log('Connected to MongoDB');
 }).catch((err) => {

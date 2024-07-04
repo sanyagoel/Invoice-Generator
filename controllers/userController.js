@@ -136,7 +136,12 @@ const getHome = async(req,res,next)=>{
     const id = req.session.user._id;
     const user =await User.findOne({_id : id});
     console.log(user);
-    res.render('home.ejs', {name : user.name , image : user.image, path : 'toHome'});
+    let imageSrc = '';
+    if (user.image && user.image.data && user.image.contentType) {
+        imageSrc = `data:${user.image.mimetype};charset=utf-8;base64,${user.image.data.toString('base64')}`;
+    }
+    console.log('IMAGE SRCCC',imageSrc);
+    res.render('home.ejs', {name : user.name , image : imageSrc, path : 'toHome'});
 }
 
 const getUserDetails = async(req,res,next)=>{
@@ -151,29 +156,34 @@ const postUserDetails = async(req,res,next)=>{
     const userID = req.session.user._id;
     const user = await User.findOne({_id : userID});
    // console.log(user);
+
     const {website,address,city,state,country,zipcode} = req.body;
     const image = req.file;
-    let imgpath;
-    if(image){
-      imgpath = image.path;
-      deleteFile(user.image);
+
+    let imgData;
+    let imgContentType;
+    if (image) {
+      imgData = image.buffer;
+      imgContentType = image.mimetype;
     }
-    console.log('multer image',image);
-    if(!image){
-        if(!user.image){
-          return res.render('addUserDetails.ejs', {user :  user,error : 'The Image Is Not Valid' });
-        }
-        imgpath = user.image;
-    }
-    const updateUser = await User.findByIdAndUpdate(userID,{
-        website : website,
-        address : address,
-        city : city,
-        state : state,
-        country : country,
-        zipcode : zipcode,
-        image : imgpath
-    })
+
+    //console.log('multer image',image);
+    const updateData = {
+      website : website,
+      address : address,
+      city : city,
+      state : state,
+      country : country,
+      zipcode : zipcode
+  }
+  if (image) {
+    updateData.image = {
+        data: image.buffer,
+        contentType: image.mimetype
+    };
+}
+    const updateUser = await User.findByIdAndUpdate(userID,updateData)
+    
     res.redirect('/home');
     console.log(updateUser);
 }
