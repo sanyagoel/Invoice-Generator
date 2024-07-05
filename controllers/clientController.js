@@ -7,6 +7,7 @@ const rootDir = require("../utils/path");
 const fs = require("fs");
 const { validationResult } = require("express-validator");
 const { sendMail, sendInvoiceMail } = require("./mail");
+const pdfModel = require('../models/pdfModel.js');
 const TOTAL_ITEMS_PERPAGE = 3;
 
 const getaddClient = (req, res, next) => {
@@ -44,7 +45,7 @@ async function printPDF(userData) {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
       ],
-      headless: true, // or false to show the browser UI
+      headless: true, 
     });
     const page = await browser.newPage();
 
@@ -181,6 +182,12 @@ const postaddClient = async (req, res, next) => {
     };
     console.log("after data", invoiceNo);
     const data2 = await printPDF(data);
+    const pdf1 = new pdfModel({
+      clientID : newClient._id,
+      userID : userid,
+      pdfData : data2
+    })
+    await pdf1.save();
     // newClient.pdf = data2;
     // await newClient.save();
     //console.log(data2,"haaaaaaaaaaaaaaaa");
@@ -223,23 +230,27 @@ const getClients = async (req, res, next) => {
 
 const downloadpdf = async (req, res, next) => {
   try {
+    const userid = req.session.user._id;
     const clientID = req.body.clientID;
-    const client = await Client.findById(clientID);
-    console.log(client);
-    const pdfname = `invoice_${client.invoiceNumber}.pdf`;
-    const pdfPath = path.join(rootDir, "invoices", pdfname);
+    const pdf = await pdfModel.findOne({userID : userid , clientID : clientID });
 
-    // fs.readFile(pdfPath,(err,data)=>{
-    //   if(err){
-    //     return next(err);
-    //   }
-    //   res.setHeader('Content-Type', 'application/pdf');
-    //   return res.send(data);
-    // })
+    // const client = await Client.findById(clientID);
+    // console.log(client);
+    // const pdfname = `invoice_${client.invoiceNumber}.pdf`;
+    // const pdfPath = path.join(rootDir, "invoices", pdfname);
 
-    const file = fs.createReadStream(pdfPath);
-    res.setHeader("Content-Type", "application/pdf");
-    file.pipe(res);
+    // // fs.readFile(pdfPath,(err,data)=>{
+    // //   if(err){
+    // //     return next(err);
+    // //   }
+    // //   res.setHeader('Content-Type', 'application/pdf');
+    // //   return res.send(data);
+    // // })
+
+    // const file = fs.createReadStream(pdfPath);
+     res.setHeader("Content-Type", "application/pdf");
+    // file.pipe(res);
+    res.send(pdf.pdfData);
   } catch (err) {
     return next(err);
   }
@@ -256,10 +267,10 @@ const deleteClientinfo = async (req, res, next) => {
     }
     const result = await Client.deleteOne({ _id: clientID, userID: userID });
     if (result) {
-      return res.status(200).json({ message: "SUCCESFULLY DESTROYED" });
+      res.status(200).json({ message: "SUCCESFULLY DESTROYED" });
     }
   } catch (err) {
-    return res.status(500).json({ message: "failed in deleting client" });
+    res.status(500).json({ message: "failed in deleting client" });
   }
 };
 

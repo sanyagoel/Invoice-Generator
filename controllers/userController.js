@@ -135,12 +135,12 @@ const getHome = async(req,res,next)=>{
     //console.log(req.user);
     const id = req.session.user._id;
     const user =await User.findOne({_id : id});
-    console.log(user);
+    // console.log(user);
     let imageSrc = '';
     if (user.image && user.image.data && user.image.contentType) {
         imageSrc = `data:${user.image.mimetype};charset=utf-8;base64,${user.image.data.toString('base64')}`;
     }
-    console.log('IMAGE SRCCC',imageSrc);
+    // console.log('IMAGE SRCCC',imageSrc);
     res.render('home.ejs', {name : user.name , image : imageSrc, path : 'toHome'});
 }
 
