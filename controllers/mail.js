@@ -16,7 +16,7 @@ oauth2client.setCredentials({refresh_token : REFRESH_TOKEN});
 
 async function sendMail(useremail){
     try{
-        const accessToken = oauth2client.getAccessToken();
+        const accessToken = await oauth2client.getAccessToken();
         const transport = nodemailer.createTransport({
             service : 'gmail',
             auth : {
@@ -47,7 +47,7 @@ async function sendMail(useremail){
 
 async function sendInvoiceMail(useremail,attachment,data){
     try{
-        const accessToken = oauth2client.getAccessToken();
+        const accessToken = await oauth2client.getAccessToken();
         const transport = nodemailer.createTransport({
             service : 'gmail',
             auth : {
@@ -142,7 +142,7 @@ async function sendInvoiceMail(useremail,attachment,data){
 
 async function sendPasswordMail(useremail,token){
     try{
-        const accessToken = oauth2client.getAccessToken();
+        const accessToken = await oauth2client.getAccessToken();
         const transport = nodemailer.createTransport({
             service : 'gmail',
             auth : {

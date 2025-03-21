@@ -66,15 +66,15 @@ async function printPDF(userData) {
     await browser.close();
     console.log("Browser closed");
 
-    const pdfPath = path.join(
-      rootDir,
-      "invoices",
-      `invoice_${userData.invoiceNumber}.pdf`
-    );
-    fs.writeFile(pdfPath, pdf, (data) => {
-      console.log(data);
-    });
-    console.log(`Invoice PDF saved to: ${pdfPath}`);
+    // const pdfPath = path.join(
+    //   rootDir,
+    //   "invoices",
+    //   `invoice_${userData.invoiceNumber}.pdf`
+    // );
+    // fs.writeFile(pdfPath, pdf, (data) => {
+    //   console.log(data);
+    // });
+    // console.log(`Invoice PDF saved to: ${pdfPath}`);
 
     return pdf;
   } catch (error) {
@@ -201,8 +201,10 @@ const postaddClient = async (req, res, next) => {
 };
 
 const getClients = async (req, res, next) => {
-  const curpage = req.query.page || 1;
+  let curpage = req.query.page || 1;
   const userID = req.session.user._id;
+
+  if (curpage < 1) curpage = 1;
   //console.log(userID);
   const total_products = await Client.countDocuments({ userID: userID });
   const totalPages = Math.ceil(total_products / TOTAL_ITEMS_PERPAGE);
